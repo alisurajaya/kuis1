@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.wms.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[-7.865070111102281,110.19947348855527],[-7.554719385860293,110.60825433982723]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>');
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        var layer_ESRISatellite_0 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            opacity: 1.0,
+            attribution: '',
+        });
+        layer_ESRISatellite_0;
+        map.addLayer(layer_ESRISatellite_0);
+        var layer_ArahanPolaRuangKawasanBudidayaKabupatenSleman_1 = L.WMS.layer("http://gis.jogjaprov.go.id/geoserver/wms", "geonode:sleman_budidaya_geo", {
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.addLayer(layer_ArahanPolaRuangKawasanBudidayaKabupatenSleman_1);
+        var layer_Guna_Lahan_2 = L.WMS.layer("http://localhost:8080/geoserver/Sleman/wms", "Guna_Lahan", {
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.addLayer(layer_Guna_Lahan_2);
+        function pop_SlemanCurah_Hujan_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID_per_ka'] !== null ? Autolinker.link(String(feature.properties['FID_per_ka'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KAB_2008'] !== null ? Autolinker.link(String(feature.properties['KAB_2008'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PROV'] !== null ? Autolinker.link(String(feature.properties['PROV'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID_curah'] !== null ? Autolinker.link(String(feature.properties['FID_curah'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID_perkab'] !== null ? Autolinker.link(String(feature.properties['FID_perkab'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PROV_1'] !== null ? Autolinker.link(String(feature.properties['PROV_1'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID_hujan_'] !== null ? Autolinker.link(String(feature.properties['FID_hujan_'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KLAS_HJN'] !== null ? Autolinker.link(String(feature.properties['KLAS_HJN'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_SlemanCurah_Hujan_3_0() {
+            return {
+                pane: 'pane_SlemanCurah_Hujan_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(213,180,60,1.0)',
+            }
+        }
+        map.createPane('pane_SlemanCurah_Hujan_3');
+        map.getPane('pane_SlemanCurah_Hujan_3').style.zIndex = 403;
+        map.getPane('pane_SlemanCurah_Hujan_3').style['mix-blend-mode'] = 'normal';
+        var layer_SlemanCurah_Hujan_3 = L.geoJson(null, {
+            attribution: '',
+            style: style_SlemanCurah_Hujan_3_0,
+            pane: 'pane_SlemanCurah_Hujan_3',
+            onEachFeature: pop_SlemanCurah_Hujan_3
+        });
+        function getSlemanCurah_Hujan_3Json(geojson) {
+            layer_SlemanCurah_Hujan_3.addData(geojson);
+        };
+        bounds_group.addLayer(layer_SlemanCurah_Hujan_3);
+        map.addLayer(layer_SlemanCurah_Hujan_3);
+        function pop_SlemanBatas_Desa_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STATUS_KOT'] !== null ? Autolinker.link(String(feature.properties['STATUS_KOT'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KODE_2008'] !== null ? Autolinker.link(String(feature.properties['KODE_2008'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DESA_2008'] !== null ? Autolinker.link(String(feature.properties['DESA_2008'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KEC_2008'] !== null ? Autolinker.link(String(feature.properties['KEC_2008'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KAB_2008'] !== null ? Autolinker.link(String(feature.properties['KAB_2008'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PROP_2008'] !== null ? Autolinker.link(String(feature.properties['PROP_2008'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_SlemanBatas_Desa_4_0() {
+            return {
+                pane: 'pane_SlemanBatas_Desa_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(114,155,111,1.0)',
+            }
+        }
+        map.createPane('pane_SlemanBatas_Desa_4');
+        map.getPane('pane_SlemanBatas_Desa_4').style.zIndex = 404;
+        map.getPane('pane_SlemanBatas_Desa_4').style['mix-blend-mode'] = 'normal';
+        var layer_SlemanBatas_Desa_4 = L.geoJson(null, {
+            attribution: '',
+            style: style_SlemanBatas_Desa_4_0,
+            pane: 'pane_SlemanBatas_Desa_4',
+            onEachFeature: pop_SlemanBatas_Desa_4
+        });
+        function getSlemanBatas_Desa_4Json(geojson) {
+            layer_SlemanBatas_Desa_4.addData(geojson);
+        };
+        bounds_group.addLayer(layer_SlemanBatas_Desa_4);
+        map.addLayer(layer_SlemanBatas_Desa_4);
+        function pop_SlemanSungai_Sleman_5(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAYER'] !== null ? Autolinker.link(String(feature.properties['LAYER'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COLOR'] !== null ? Autolinker.link(String(feature.properties['COLOR'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Panjang'] !== null ? Autolinker.link(String(feature.properties['Panjang'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_SlemanSungai_Sleman_5_0() {
+            return {
+                pane: 'pane_SlemanSungai_Sleman_5',
+                opacity: 1,
+                color: 'rgba(43,69,201,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+            }
+        }
+        map.createPane('pane_SlemanSungai_Sleman_5');
+        map.getPane('pane_SlemanSungai_Sleman_5').style.zIndex = 405;
+        map.getPane('pane_SlemanSungai_Sleman_5').style['mix-blend-mode'] = 'normal';
+        var layer_SlemanSungai_Sleman_5 = L.geoJson(null, {
+            attribution: '',
+            style: style_SlemanSungai_Sleman_5_0,
+            pane: 'pane_SlemanSungai_Sleman_5',
+            onEachFeature: pop_SlemanSungai_Sleman_5
+        });
+        function getSlemanSungai_Sleman_5Json(geojson) {
+            layer_SlemanSungai_Sleman_5.addData(geojson);
+        };
+        bounds_group.addLayer(layer_SlemanSungai_Sleman_5);
+        map.addLayer(layer_SlemanSungai_Sleman_5);
+        function pop_SlemanJaringan_jalan_6(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ID'] !== null ? Autolinker.link(String(feature.properties['ID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KET_JLN'] !== null ? Autolinker.link(String(feature.properties['KET_JLN'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_SlemanJaringan_jalan_6_0() {
+            return {
+                pane: 'pane_SlemanJaringan_jalan_6',
+                opacity: 1,
+                color: 'rgba(12,20,23,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+            }
+        }
+        map.createPane('pane_SlemanJaringan_jalan_6');
+        map.getPane('pane_SlemanJaringan_jalan_6').style.zIndex = 406;
+        map.getPane('pane_SlemanJaringan_jalan_6').style['mix-blend-mode'] = 'normal';
+        var layer_SlemanJaringan_jalan_6 = L.geoJson(null, {
+            attribution: '',
+            style: style_SlemanJaringan_jalan_6_0,
+            pane: 'pane_SlemanJaringan_jalan_6',
+            onEachFeature: pop_SlemanJaringan_jalan_6
+        });
+        function getSlemanJaringan_jalan_6Json(geojson) {
+            layer_SlemanJaringan_jalan_6.addData(geojson);
+        };
+        bounds_group.addLayer(layer_SlemanJaringan_jalan_6);
+        map.addLayer(layer_SlemanJaringan_jalan_6);
+        function pop_SlemanFasilitas_Umum_7(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>ID</strong><br />' + (feature.properties['ID'] !== null ? Autolinker.link(String(feature.properties['ID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAMA'] !== null ? Autolinker.link(String(feature.properties['NAMA'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Fungsi'] !== null ? Autolinker.link(String(feature.properties['Fungsi'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_SlemanFasilitas_Umum_7_0() {
+            return {
+                pane: 'pane_SlemanFasilitas_Umum_7',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(32,187,18,1.0)',
+            }
+        }
+        map.createPane('pane_SlemanFasilitas_Umum_7');
+        map.getPane('pane_SlemanFasilitas_Umum_7').style.zIndex = 407;
+        map.getPane('pane_SlemanFasilitas_Umum_7').style['mix-blend-mode'] = 'normal';
+        function pointToLayer_SlemanFasilitas_Umum_7_0(feature, latlng) {
+            var context = {
+                feature: feature,
+                variables: {}
+            };
+            return L.circleMarker(latlng, style_SlemanFasilitas_Umum_7_0(feature));
+        }
+        var layer_SlemanFasilitas_Umum_7 = L.geoJson(null, {
+            attribution: '',
+            pane: 'pane_SlemanFasilitas_Umum_7',
+            pointToLayer: pointToLayer_SlemanFasilitas_Umum_7_0, 
+            onEachFeature: pop_SlemanFasilitas_Umum_7
+        });
+        function getSlemanFasilitas_Umum_7Json(geojson) {
+            layer_SlemanFasilitas_Umum_7.addData(geojson);
+            setBounds();
+        };
+        bounds_group.addLayer(layer_SlemanFasilitas_Umum_7);
+        map.addLayer(layer_SlemanFasilitas_Umum_7);
+        function pop_SlemanKRB_Merapi_8(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ID'] !== null ? Autolinker.link(String(feature.properties['ID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KRB'] !== null ? Autolinker.link(String(feature.properties['KRB'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_SlemanKRB_Merapi_8_0() {
+            return {
+                pane: 'pane_SlemanKRB_Merapi_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(212,35,32,1.0)',
+            }
+        }
+        map.createPane('pane_SlemanKRB_Merapi_8');
+        map.getPane('pane_SlemanKRB_Merapi_8').style.zIndex = 408;
+        map.getPane('pane_SlemanKRB_Merapi_8').style['mix-blend-mode'] = 'normal';
+        var layer_SlemanKRB_Merapi_8 = L.geoJson(null, {
+            attribution: '',
+            style: style_SlemanKRB_Merapi_8_0,
+            pane: 'pane_SlemanKRB_Merapi_8',
+            onEachFeature: pop_SlemanKRB_Merapi_8
+        });
+        function getSlemanKRB_Merapi_8Json(geojson) {
+            layer_SlemanKRB_Merapi_8.addData(geojson);
+        };
+        bounds_group.addLayer(layer_SlemanKRB_Merapi_8);
+        map.addLayer(layer_SlemanKRB_Merapi_8);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'<img src="legend/SlemanKRB_Merapi_8.png" /> Sleman:KRB_Merapi': layer_SlemanKRB_Merapi_8,'<img src="legend/SlemanFasilitas_Umum_7.png" /> Sleman:Fasilitas_Umum': layer_SlemanFasilitas_Umum_7,'<img src="legend/SlemanJaringan_jalan_6.png" /> Sleman:Jaringan_jalan': layer_SlemanJaringan_jalan_6,'<img src="legend/SlemanSungai_Sleman_5.png" /> Sleman:Sungai_Sleman': layer_SlemanSungai_Sleman_5,'<img src="legend/SlemanBatas_Desa_4.png" /> Sleman:Batas_Desa': layer_SlemanBatas_Desa_4,'<img src="legend/SlemanCurah_Hujan_3.png" /> Sleman:Curah_Hujan': layer_SlemanCurah_Hujan_3,"Guna_Lahan": layer_Guna_Lahan_2,"Arahan Pola Ruang Kawasan Budidaya Kabupaten Sleman": layer_ArahanPolaRuangKawasanBudidayaKabupatenSleman_1,"ESRI Satellite": layer_ESRISatellite_0,}).addTo(map);
+        </script>
+        <script src='http://localhost:8080/geoserver/Sleman/ows?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=Sleman:Curah_Hujan&SRSNAME=EPSG:4326&outputFormat=text%2Fjavascript&format_options=callback%3AgetSlemanCurah_Hujan_3Json'></script>
+        <script src='http://localhost:8080/geoserver/Sleman/ows?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=Sleman:Batas_Desa&SRSNAME=EPSG:4326&outputFormat=text%2Fjavascript&format_options=callback%3AgetSlemanBatas_Desa_4Json'></script>
+        <script src='http://localhost:8080/geoserver/Sleman/ows?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=Sleman:Sungai_Sleman&SRSNAME=EPSG:4326&outputFormat=text%2Fjavascript&format_options=callback%3AgetSlemanSungai_Sleman_5Json'></script>
+        <script src='http://localhost:8080/geoserver/Sleman/ows?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=Sleman:Jaringan_jalan&SRSNAME=EPSG:4326&outputFormat=text%2Fjavascript&format_options=callback%3AgetSlemanJaringan_jalan_6Json'></script>
+        <script src='http://localhost:8080/geoserver/Sleman/ows?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=Sleman:Fasilitas_Umum&SRSNAME=EPSG:4326&outputFormat=text%2Fjavascript&format_options=callback%3AgetSlemanFasilitas_Umum_7Json'></script>
+        <script src='http://localhost:8080/geoserver/Sleman/ows?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=Sleman:KRB_Merapi&SRSNAME=EPSG:4326&outputFormat=text%2Fjavascript&format_options=callback%3AgetSlemanKRB_Merapi_8Json'></script>
+    </body>
+</html>
